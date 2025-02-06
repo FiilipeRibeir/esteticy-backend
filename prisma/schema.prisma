@@ -1,0 +1,117 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String             @id @default(uuid())
+  email            String             @unique
+  name             String
+  nickname         String
+  password         String
+  status           Boolean
+  createdAt        DateTime?          @default(now())
+  updatedAt        DateTime?          @updatedAt
+  Appointment      Appointment[]
+  Work             Work[]
+  Payment          Payment[]
+  MercadoPagoToken MercadoPagoToken[]
+
+  @@map("users")
+}
+
+model Client {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  name      String
+  phone     String    @unique
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
+
+  @@map("client")
+}
+
+model Appointment {
+  id            String            @id @default(uuid())
+  userId        String
+  user          User              @relation(fields: [userId], references: [id])
+  workId        String
+  work          Work              @relation(fields: [workId], references: [id])
+  title         String
+  date          DateTime
+  status        AppointmentStatus @default(PENDENTE)
+  paymentStatus PaymentStatus     @default(PENDENTE)
+  paidAmount    Float             @default(0)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  Payment       Payment[]
+
+  @@map("appointments")
+}
+
+model Work {
+  id          String        @id @default(uuid())
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+  name        String
+  description String?
+  price       Float
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  Appointment Appointment[]
+
+  @@map("work")
+}
+
+model Payment {
+  id            String        @id @default(uuid())
+  userId        String
+  user          User          @relation(fields: [userId], references: [id])
+  appointmentId String
+  appointment   Appointment   @relation(fields: [appointmentId], references: [id])
+  amount        Float
+  status        PaymentStatus @default(PENDENTE)
+  method        String
+  transactionId String        @unique
+  expiresAt     DateTime
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@map("payments")
+}
+
+model MercadoPagoToken {
+  id           String   @id @default(uuid())
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken  String
+  refreshToken String
+  expiresAt    DateTime
+
+  @@map("mptoken")
+}
+
+model MercadoPagoSession {
+  id           String   @id @default(uuid())
+  userId       String
+  state        String   @unique
+  codeVerifier String
+  createdAt    DateTime @default(now())
+
+  @@map("mptokensession")
+}
+
+enum AppointmentStatus {
+  CANCELADO
+  PENDENTE
+  CONCLUIDO
+}
+
+enum PaymentStatus {
+  PENDENTE
+  CONFIRMADO
+}
