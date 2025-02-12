@@ -1,6 +1,5 @@
 import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { User } from '@prisma/client';
-import { JwtAuthGuard } from 'src/modules/auth/jwt/jwt-auth.guard';
 import { UserCreateSchema, UserUpdateProps, UserUpdateSchema } from '../interface/user_interface';
 import { UserService } from '../service/user.service';
 
@@ -19,7 +18,6 @@ export class UserController {
     return this.userService.createUser(parsedData.data);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get()
   async findUserByEmail(@Query('email') email: string): Promise<User[] | User | null> {
     if (email) {
@@ -29,13 +27,11 @@ export class UserController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get(':id')
   async findUserById(@Param('id') id: string): Promise<User | null> {
     return this.userService.findUserById(id);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Put(':id')
   async updateUser(
     @Param('id') id: string,
@@ -51,7 +47,6 @@ export class UserController {
     return this.userService.updateUser(updateData);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async deleteUser(@Param('id') id: string): Promise<User> {
     return this.userService.deleteUser(id);
