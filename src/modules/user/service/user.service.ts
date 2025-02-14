@@ -8,6 +8,15 @@ export class UserService {
   constructor(private prisma: PrismaService) { }
 
   async createUser(data: UserCreateProps): Promise<User> {
+
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email: data.email },
+    });
+
+    if (existingUser) {
+      return existingUser;
+    }
+
     return this.prisma.user.create({
       data,
     });

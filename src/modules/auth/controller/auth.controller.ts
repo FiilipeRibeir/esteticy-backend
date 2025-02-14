@@ -2,7 +2,7 @@ import { BadRequestException, Body, Controller, Post, UnauthorizedException } fr
 import { ClientLoginSchema } from '../interface/auth_interface';
 import { AuthService } from '../service/auth.service';
 
-@Controller('auth')
+@Controller('oauth')
 export class AuthController {
   constructor(private readonly authService: AuthService) { }
 
@@ -15,14 +15,5 @@ export class AuthController {
     }
 
     return this.authService.clientLogin(parsedData.data);
-  }
-
-  @Post('google')
-  async googleLogin(@Body('idToken') idToken: string) {
-    if (!idToken) {
-      throw new UnauthorizedException('Token do Google não informado');
-    }
-
-    return this.authService.googleLogin(idToken);
   }
 }
