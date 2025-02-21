@@ -1,8 +1,8 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards, Req } from '@nestjs/common';
 import { Work } from '@prisma/client';
-import { JwtAuthGuard } from 'src/modules/auth/jwt/jwt-auth.guard';
 import { WorkCreateSchema, WorkGetOneSchema, WorkUpdateProps, WorkUpdateSchema } from '../interface/work_interface';
 import { WorkService } from '../service/work.service';
+import { JwtAuthGuard } from 'src/modules/auth/jwt/jwt-auth.guard';
 
 @Controller('work')
 export class WorkController {
@@ -10,11 +10,12 @@ export class WorkController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@Body() data: unknown): Promise<Work> {
+  async create(@Req() req, @Body() data: unknown): Promise<Work> {
     const parsedData = WorkCreateSchema.safeParse(data);
     if (!parsedData.success) {
       throw new BadRequestException(parsedData.error.errors);
     }
+
     return this.workService.createWork(parsedData.data);
   }
 
@@ -40,10 +41,7 @@ export class WorkController {
 
   @UseGuards(JwtAuthGuard)
   @Put(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() data: unknown,
-  ): Promise<Work> {
+  async update(@Param('id') id: string, @Body() data: unknown): Promise<Work> {
     const parsedData = WorkUpdateSchema.omit({ id: true }).safeParse(data);
 
     if (!parsedData.success) {

@@ -8,23 +8,23 @@ datasource db {
 }
 
 model User {
-  id               String             @id @default(uuid())
+  id               String             @id @default(uuid()) @db.Uuid
   email            String             @unique
   name             String
   nickname         String
   status           Boolean            @default(true)
   createdAt        DateTime?          @default(now())
   updatedAt        DateTime?          @updatedAt
-  Appointment      Appointment[]
-  Work             Work[]
-  Payment          Payment[]
+  Appointment      Appointment[]      @relation("UserAppointments")
+  Work             Work[]             @relation("UserWorks")
+  Payment          Payment[]          @relation("UserPayments")
   MercadoPagoToken MercadoPagoToken[]
 
   @@map("users")
 }
 
 model Client {
-  id        String    @id @default(uuid())
+  id        String    @id @default(uuid()) @db.Uuid
   email     String    @unique
   name      String
   phone     String    @unique
@@ -35,10 +35,10 @@ model Client {
 }
 
 model Appointment {
-  id            String            @id @default(uuid())
-  userId        String
-  user          User              @relation(fields: [userId], references: [id])
-  workId        String
+  id            String            @id @default(uuid()) @db.Uuid
+  userId        String            @db.Uuid
+  user          User              @relation("UserAppointments", fields: [userId], references: [id])
+  workId        String            @db.Uuid
   work          Work              @relation(fields: [workId], references: [id])
   title         String
   date          DateTime
@@ -47,15 +47,15 @@ model Appointment {
   paidAmount    Float             @default(0)
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
-  Payment       Payment[]
+  Payment       Payment[]         @relation("AppointmentPayments")
 
   @@map("appointments")
 }
 
 model Work {
-  id          String        @id @default(uuid())
-  userId      String
-  user        User          @relation(fields: [userId], references: [id])
+  id          String        @id @default(uuid()) @db.Uuid
+  userId      String        @db.Uuid
+  user        User          @relation("UserWorks", fields: [userId], references: [id])
   name        String
   description String?
   price       Float
@@ -67,11 +67,11 @@ model Work {
 }
 
 model Payment {
-  id            String        @id @default(uuid())
-  userId        String
-  user          User          @relation(fields: [userId], references: [id])
-  appointmentId String
-  appointment   Appointment   @relation(fields: [appointmentId], references: [id])
+  id            String        @id @default(uuid()) @db.Uuid
+  userId        String        @db.Uuid
+  user          User          @relation("UserPayments", fields: [userId], references: [id])
+  appointmentId String        @db.Uuid
+  appointment   Appointment   @relation("AppointmentPayments", fields: [appointmentId], references: [id])
   amount        Float
   status        PaymentStatus @default(PENDENTE)
   method        String
@@ -84,8 +84,8 @@ model Payment {
 }
 
 model MercadoPagoToken {
-  id           String   @id @default(uuid())
-  userId       String   @unique
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @unique @db.Uuid
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   accessToken  String
   refreshToken String
@@ -95,8 +95,8 @@ model MercadoPagoToken {
 }
 
 model MercadoPagoSession {
-  id           String   @id @default(uuid())
-  userId       String
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @db.Uuid
   state        String   @unique
   codeVerifier String
   createdAt    DateTime @default(now())
