@@ -15,7 +15,6 @@ export const WorkGetOneSchema = z.object({
   userId: z.string().optional(),
   name: z.string().optional(),
   description: z.string().optional(),
-  price: z.number().optional(),
 });
 
 export const WorkUpdateSchema = z.object({

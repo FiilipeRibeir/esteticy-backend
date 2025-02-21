@@ -1,8 +1,8 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards, Req } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { Work } from '@prisma/client';
+import { JwtAuthGuard } from 'src/modules/auth/jwt/jwt-auth.guard';
 import { WorkCreateSchema, WorkGetOneSchema, WorkUpdateProps, WorkUpdateSchema } from '../interface/work_interface';
 import { WorkService } from '../service/work.service';
-import { JwtAuthGuard } from 'src/modules/auth/jwt/jwt-auth.guard';
 
 @Controller('work')
 export class WorkController {
@@ -10,7 +10,7 @@ export class WorkController {
 
   @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@Req() req, @Body() data: unknown): Promise<Work> {
+  async create(@Body() data: unknown): Promise<Work> {
     const parsedData = WorkCreateSchema.safeParse(data);
     if (!parsedData.success) {
       throw new BadRequestException(parsedData.error.errors);
@@ -25,18 +25,16 @@ export class WorkController {
     return this.workService.deleteWork({ id });
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get()
-  async getAll(): Promise<Work[]> {
-    return this.workService.getWorks();
-  }
-
-  @Get('filtered')
-  async getFiltered(@Query() filters: unknown): Promise<Work[]> {
+  async getAllOrFiltered(@Query() filters: unknown): Promise<Work[]> {
     const parsedFilters = WorkGetOneSchema.safeParse(filters);
-    if (!parsedFilters.success) {
-      throw new BadRequestException(parsedFilters.error.errors);
+
+    if (parsedFilters.success) {
+      return this.workService.getFilteredWorks(parsedFilters.data);
     }
-    return this.workService.getFilteredWorks(parsedFilters.data);
+
+    return this.workService.getWorks();
   }
 
   @UseGuards(JwtAuthGuard)
