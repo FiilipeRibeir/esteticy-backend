@@ -4,7 +4,7 @@ import { WorkCreateProps, WorkCreateSchema, WorkDeleteProps, WorkDeleteSchema, W
 
 @Injectable()
 export class WorkService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async createWork(data: WorkCreateProps) {
     const parsedData = WorkCreateSchema.safeParse(data);
@@ -50,10 +50,15 @@ export class WorkService {
     }
 
     const where: any = {};
-    if (parsedData.data.name) where.name = { contains: parsedData.data.name, mode: 'insensitive' };
-    if (parsedData.data.description) where.description = { contains: parsedData.data.description, mode: 'insensitive' };
-    if (parsedData.data.userId) where.userId = parsedData.data.userId;
-    if (parsedData.data.price !== undefined) where.price = parsedData.data.price;
+    if (parsedData.data.name) {
+      where.name = { contains: parsedData.data.name, mode: 'insensitive' };
+    }
+    if (parsedData.data.description) {
+      where.description = { contains: parsedData.data.description, mode: 'insensitive' };
+    }
+    if (parsedData.data.userId) {
+      where.userId = parsedData.data.userId;
+    }
 
     return this.prisma.work.findMany({ where });
   }
