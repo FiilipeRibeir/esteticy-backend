@@ -1,5 +1,5 @@
-import { z } from 'zod';
 import { AppointmentStatus, PaymentStatus } from '@prisma/client';
+import { z } from 'zod';
 
 export const AppointmentCreateSchema = z.object({
   userId: z.string().uuid('Invalid user ID'),
@@ -12,7 +12,7 @@ export const AppointmentDeleteSchema = z.object({
   id: z.string().uuid('Invalid appointment ID'),
 });
 
-export const AppointmentGetOneSchema = z.object({
+export const AppointmentGetSchema = z.object({
   userId: z.string().uuid('Invalid user ID').optional(),
   date: z.coerce.date().optional(),
   status: z.nativeEnum(AppointmentStatus).optional(),
@@ -28,5 +28,5 @@ export const AppointmentUpdateSchema = z.object({
 
 export type AppointmentCreateProps = z.infer<typeof AppointmentCreateSchema>;
 export type AppointmentDeleteProps = z.infer<typeof AppointmentDeleteSchema>;
-export type AppointmentGetOneProps = z.infer<typeof AppointmentGetOneSchema>;
+export type AppointmentGetProps = z.infer<typeof AppointmentGetSchema>;
 export type AppointmentUpdateProps = z.infer<typeof AppointmentUpdateSchema>;
